@@ -40,7 +40,11 @@ fn handle_connection(mut stream: TcpStream) {
     let response: &str;
     if path == "/" {
         response = "HTTP/1.1 200 OK\r\n\r\n";
-    } else {
+    } else if path.starts_with("/echo/") {
+        const BODY: &str = path.replace("/echo/", "");
+        response = format!("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}", BODY.len(), BODY).as_str()
+    }
+    else {
         response = "HTTP/1.1 404 Not Found\r\n\r\n";
     }
 
