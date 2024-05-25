@@ -76,7 +76,7 @@ fn handle_connect(mut stream: TcpStream) {
                         body
                     )
                 }
-            } else if http_request.path.starts_with("/files") {
+            } else if http_request.method == "GET" && http_request.path.starts_with("/files") {
                 let file_name = http_request.path.replace("/files/", "");
                 let env_args: Vec<String> = env::args().collect();
                 let mut dir = env_args[2].clone();
@@ -91,10 +91,12 @@ fn handle_connect(mut stream: TcpStream) {
             } else if http_request.method == "POST" && http_request.path.starts_with("/files"){
                 let file_name = http_request.path.replace("/files/", "");
                 let body = http_request.contents.split_once("\r\n\r\n").unwrap().1;
+                let body = body.split_once("\0").unwrap().0;
+                dbg!(body);
                 let env_args: Vec<String> = env::args().collect();
                 let mut dir = env_args[2].clone();
                 dir.push_str(&file_name);
-                let mut file = File::create(dir)?;
+                let mut file = File::create(dir).unwrap();
                 file.write_all(body.as_bytes()).unwrap();
                 resp = "HTTP/1.1 201 Created\r\n\r\n".to_string();
             }
