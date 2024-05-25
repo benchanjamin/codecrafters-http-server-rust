@@ -92,7 +92,7 @@ fn handle_connect(mut stream: TcpStream) {
                 let file_name = http_request.path.replace("/files/", "");
                 let body = http_request.contents.split_once("\r\n\r\n").unwrap().1;
                 let body = body.split_once("\0").unwrap().0;
-                dbg!(body);
+                // dbg!(body);
                 let env_args: Vec<String> = env::args().collect();
                 let mut dir = env_args[2].clone();
                 dir.push_str(&file_name);
@@ -106,7 +106,7 @@ fn handle_connect(mut stream: TcpStream) {
                 Err(e) => println!("err: {}", e),
             }
 
-        }
+        },
         Err(e) => println!("Fail connect: {}", e),
     }
 }
