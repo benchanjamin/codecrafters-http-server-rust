@@ -15,7 +15,7 @@ fn main() {
         match stream {
             Ok(_stream) => {
                 println!("accepted new connection");
-                handle_connection(_stream);
+                std::thread::spawn(|| handle_connection(_stream));
                 // _stream.write(b"HTTP/1.1 200 OK\r\n\r\n").expect("200 \n");
             }
             Err(e) => {
