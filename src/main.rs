@@ -5,6 +5,8 @@ use std::{
     net::{TcpListener, TcpStream},
     str, thread,
 };
+use std::fs::{File, read_to_string};
+
 #[derive(Debug)]
 struct HttpRequest {
     method: String,
@@ -12,6 +14,7 @@ struct HttpRequest {
     version: String,
     host: Option<String>,
     user_agent: Option<String>,
+    contents: String,
 }
 impl Default for HttpRequest {
     fn default() -> Self {
@@ -21,6 +24,7 @@ impl Default for HttpRequest {
             method: Default::default(),
             version: Default::default(),
             path: Default::default(),
+            contents: Default::default(),
         }
     }
 }
@@ -53,6 +57,7 @@ fn handle_connect(mut stream: TcpStream) {
             let http_request = pars_req(&req).unwrap();
             let mut resp = not_found_resp.clone();
             println!("path: {:#?}", http_request.user_agent);
+
             if http_request.path == "/" {
                 resp = ok_resp.clone();
             } else if http_request.path.starts_with("/echo") {
@@ -83,11 +88,22 @@ fn handle_connect(mut stream: TcpStream) {
                     }
                     Err(..) => resp = not_found_resp.clone(),
                 }
+            } else if http_request.method == "POST" && http_request.path.starts_with("/files"){
+                let file_name = http_request.path.replace("/files/", "");
+                let body = http_request.contents.split_once("\r\n\r\n").unwrap().1;
+                let env_args: Vec<String> = env::args().collect();
+                let mut dir = env_args[2].clone();
+                dir.push_str(&file_name);
+                let mut file = File::create(dir)?;
+                file.write_all(body.as_bytes()).unwrap();
+                resp = "HTTP/1.1 201 Created\r\n\r\n".to_string();
             }
+
             match stream.write(resp.as_bytes()) {
                 Ok(_) => println!("Ok"),
                 Err(e) => println!("err: {}", e),
             }
+
         }
         Err(e) => println!("Fail connect: {}", e),
     }
@@ -103,6 +119,7 @@ fn pars_req(req: &str) -> Result<HttpRequest, Error> {
         version: String::from(method_header.next().unwrap()),
         host: Some(host),
         user_agent: Some(user_agent),
+        contents: req.to_string(),
         ..Default::default()
     };
     Ok(http_request)
