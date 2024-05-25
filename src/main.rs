@@ -44,11 +44,11 @@ fn handle_connect(mut stream: TcpStream) {
 
     let mut buffer = [0; 1024];
     let ok_resp = "HTTP/1.1 200 OK\r\n\r\n".to_string();
-    let not_found_resp = "HTTP/1.1 404 NOT FOUND\r\n\r\n".to_string();
+    let not_found_resp = "HTTP/1.1 404 Not Found\r\n\r\n".to_string();
 
     match stream.read(&mut buffer) {
         Ok(_n) => {
-            println!("Req receided");
+            println!("Req received");
             let req = str::from_utf8(&buffer).unwrap();
             let http_request = pars_req(&req).unwrap();
             let mut resp = not_found_resp.clone();
