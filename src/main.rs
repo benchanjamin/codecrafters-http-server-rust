@@ -67,6 +67,7 @@ fn handle_connect(mut stream: TcpStream) {
                 let mut headers = format!("Content-Type: text/plain\r\nContent-Length: {}\r\n", body.len());
 
                 for (key, value) in http_request.other_headers.iter() {
+                    dbg!(key, value);
                     if key == "Accept-Encoding" && value == "gzip" {
                         headers += format!("Content-Encoding:{value}\r\n").as_str();
                     }
