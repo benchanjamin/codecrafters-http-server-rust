@@ -76,7 +76,7 @@ fn handle_connect(mut stream: TcpStream) {
                 headers += format!("Content-Type: text/plain\r\nContent-Length: {}\r\n", body.len()).as_str();
 
 
-                dbg!(body.clone());
+                // dbg!(body.clone());
 
                 resp = format!(
                     "HTTP/1.1 200 OK\r\n{}\r\n{}",
@@ -133,22 +133,24 @@ fn pars_req(req: &str) -> Result<HttpRequest, Error> {
     let host = content[1].replace("Host: ", "");
     let user_agent = content[2].replace("User-Agent: ", "");
 
+    println!("content: {:?}", content);
+
     let mut other_headers: Vec<_> = vec![];
     // for each in content, split by ": " and put values in a tuple in a vector
     for i in 3..content.len() {
         if content[i].is_empty() {
             break;
         }
+        println!("content[i]: {:?}", content[i]);
         let header = content[i].split_once(": ");
         match header {
             Some(h) => {
+                println!("header: {:?}", h);
                 other_headers.push((h.0.to_string(), h.1.to_string()));
             }
             None => {}
         }
     }
-
-    // println!("other_headers: {:#?}", other_headers);
 
     let http_request = HttpRequest {
         method: String::from(method_header.next().unwrap()),
