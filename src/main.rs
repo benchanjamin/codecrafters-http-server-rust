@@ -137,7 +137,7 @@ fn pars_req(req: &str) -> Result<HttpRequest, Error> {
 
     let mut other_headers: Vec<_> = vec![];
     // for each in content, split by ": " and put values in a tuple in a vector
-    for i in 3..content.len() {
+    for i in 0..content.len() {
         if content[i].is_empty() {
             break;
         }
