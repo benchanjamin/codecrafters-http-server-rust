@@ -77,6 +77,7 @@ fn handle_connect(mut stream: TcpStream) {
                     headers,
                     body
                 );
+                dbg!(resp);
             } else if http_request.path.starts_with("/user-agent") {
                 let body = http_request.user_agent.unwrap();
                 if http_request.method == "GET" {
