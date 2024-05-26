@@ -14,6 +14,7 @@ struct HttpRequest {
     version: String,
     host: Option<String>,
     user_agent: Option<String>,
+    other_headers: Vec<(String, String)>,
     contents: String,
 }
 impl Default for HttpRequest {
@@ -24,6 +25,7 @@ impl Default for HttpRequest {
             method: Default::default(),
             version: Default::default(),
             path: Default::default(),
+            other_headers: Default::default(),
             contents: Default::default(),
         }
     }
@@ -62,9 +64,17 @@ fn handle_connect(mut stream: TcpStream) {
                 resp = ok_resp.clone();
             } else if http_request.path.starts_with("/echo") {
                 let body = http_request.path.replace("/echo/", "");
+                let mut headers = format!("Content-Type: text/plain\r\nContent-Length: {}\r\n", body.len());
+
+                for (key, value) in http_request.other_headers.iter() {
+                    if key == "Accept-Encoding" && value == "gzip" {
+                        headers += format!("Content-Encoding:{value}\r\n").as_str();
+                    }
+                }
+
                 resp = format!(
-                    "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}",
-                    body.len(),
+                    "HTTP/1.1 200 OK\r\n{}\r\n{}",
+                    headers,
                     body
                 );
             } else if http_request.path.starts_with("/user-agent") {
@@ -115,12 +125,29 @@ fn pars_req(req: &str) -> Result<HttpRequest, Error> {
     let mut method_header = content[0].split_whitespace();
     let host = content[1].replace("Host: ", "");
     let user_agent = content[2].replace("User-Agent: ", "");
+
+    let mut other_headers: Vec<_> = vec![];
+    // for each in content, split by ": " and put values in a tuple in a vector
+    for i in 3..content.len() {
+        if content[i].is_empty() {
+            break;
+        }
+        let header = content[i].split_once(": ");
+        match header {
+            Some(h) => {
+                other_headers.push((h.0.to_string(), h.1.to_string()));
+            }
+            None => {}
+        }
+    }
+
     let http_request = HttpRequest {
         method: String::from(method_header.next().unwrap()),
         path: String::from(method_header.next().unwrap()),
         version: String::from(method_header.next().unwrap()),
         host: Some(host),
         user_agent: Some(user_agent),
+        other_headers,
         contents: req.to_string(),
         ..Default::default()
     };
