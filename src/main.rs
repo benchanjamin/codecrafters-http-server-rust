@@ -133,7 +133,7 @@ fn pars_req(req: &str) -> Result<HttpRequest, Error> {
     let host = content[1].replace("Host: ", "");
     let user_agent = content[2].replace("User-Agent: ", "");
 
-    println!("content: {:?}", content);
+    // println!("content: {:?}", content);
 
     let mut other_headers: Vec<_> = vec![];
     // for each in content, split by ": " and put values in a tuple in a vector
@@ -141,12 +141,16 @@ fn pars_req(req: &str) -> Result<HttpRequest, Error> {
         if content[i].is_empty() {
             break;
         }
-        println!("content[i]: {:?}", content[i]);
+        // println!("content[i]: {:?}", content[i]);
         let header = content[i].split_once(": ");
         match header {
             Some(h) => {
-                println!("header: {:?}", h);
-                other_headers.push((h.0.to_string(), h.1.to_string()));
+                // println!("header: {:?}", h);
+                let h_1_expanded = h.1.split(", ").collect::<Vec<&str>>();
+                for h_1 in h_1_expanded {
+                    other_headers.push((h.0.to_string(), h_1.to_string()));
+                }
+                // other_headers.push((h.0.to_string(), h.1.to_string()));
             }
             None => {}
         }
