@@ -58,7 +58,7 @@ fn handle_connect(mut stream: TcpStream) {
             let req = str::from_utf8(&buffer).unwrap();
             let http_request = pars_req(&req).unwrap();
             let mut resp = not_found_resp.clone();
-            println!("path: {:#?}", http_request.user_agent);
+            // println!("path: {:#?}", http_request.user_agent);
 
             if http_request.path == "/" {
                 resp = ok_resp.clone();
@@ -72,6 +72,8 @@ fn handle_connect(mut stream: TcpStream) {
                         headers += format!("Content-Encoding: {value}\r\n").as_str();
                     }
                 }
+
+                dbg!(body.clone());
 
                 resp = format!(
                     "HTTP/1.1 200 OK\r\n{}\r\n{}",
