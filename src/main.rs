@@ -5,7 +5,7 @@ use std::{
     net::{TcpListener, TcpStream},
     str, thread,
 };
-use std::fs::{File, read_to_string};
+use std::fs::{File};
 
 #[derive(Debug)]
 struct HttpRequest {
@@ -142,6 +142,8 @@ fn pars_req(req: &str) -> Result<HttpRequest, Error> {
             None => {}
         }
     }
+
+    println!("other_headers: {:#?}", other_headers);
 
     let http_request = HttpRequest {
         method: String::from(method_header.next().unwrap()),
