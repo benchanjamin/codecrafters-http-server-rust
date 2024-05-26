@@ -64,7 +64,7 @@ fn handle_connect(mut stream: TcpStream) {
                 resp = ok_resp.clone();
             } else if http_request.path.starts_with("/echo") {
                 let body = http_request.path.replace("/echo/", "");
-                let mut headers = format!("Content-Type: text/plain\r\nContent-Length: {}\r\n", body.len());
+                let mut headers = "".to_string();
 
                 for (key, value) in http_request.other_headers.iter() {
                     dbg!(key, value);
@@ -72,6 +72,9 @@ fn handle_connect(mut stream: TcpStream) {
                         headers += format!("Content-Encoding: {value}\r\n").as_str();
                     }
                 }
+
+                headers += format!("Content-Type: text/plain\r\nContent-Length: {}\r\n", body.len()).as_str();
+
 
                 dbg!(body.clone());
 
