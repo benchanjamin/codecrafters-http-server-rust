@@ -69,7 +69,7 @@ fn handle_connect(mut stream: TcpStream) {
                 for (key, value) in http_request.other_headers.iter() {
                     dbg!(key, value);
                     if key == "Accept-Encoding" && value == "gzip" {
-                        headers += format!("Content-Encoding:{value}\r\n").as_str();
+                        headers += format!("Content-Encoding: {value}\r\n").as_str();
                     }
                 }
 
@@ -78,7 +78,7 @@ fn handle_connect(mut stream: TcpStream) {
                     headers,
                     body
                 );
-                dbg!(resp.clone());
+                // dbg!(resp.clone());
             } else if http_request.path.starts_with("/user-agent") {
                 let body = http_request.user_agent.unwrap();
                 if http_request.method == "GET" {
@@ -131,7 +131,6 @@ fn pars_req(req: &str) -> Result<HttpRequest, Error> {
     let mut other_headers: Vec<_> = vec![];
     // for each in content, split by ": " and put values in a tuple in a vector
     for i in 3..content.len() {
-        println!("content[i]: {:#?}", content[i]);
         if content[i].is_empty() {
             break;
         }
@@ -144,7 +143,7 @@ fn pars_req(req: &str) -> Result<HttpRequest, Error> {
         }
     }
 
-    println!("other_headers: {:#?}", other_headers);
+    // println!("other_headers: {:#?}", other_headers);
 
     let http_request = HttpRequest {
         method: String::from(method_header.next().unwrap()),
